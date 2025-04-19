@@ -19,7 +19,13 @@ public class Main {
             int choice = sc.nextInt();
 
             switch (choice) {
+
+                // [+] Set up Products
                 case 1: {
+                    if (stock != null) {
+                        System.out.println("[!] Stock is already inserted [!]");
+                        break;
+                    }
                     System.out.print("[+] Insert number of Stock: ");
                     int qtyStock = sc.nextInt();
                     stock = new String[qtyStock][];
@@ -34,10 +40,10 @@ public class Main {
                         }
                     }
                     System.out.println("[+] Successfully Set Up Stock [+]\n");
-
                     break;
                 }
 
+                // [#] View Product
                 case 2: {
                     if (stock == null) {
                         System.out.println("[!] Please set up stock first.\n");
@@ -55,47 +61,151 @@ public class Main {
                     break;
                 }
 
+                // [+] Insert Product
                 case 3: {
                     if (stock == null) {
                         System.out.println("[!] Please set up stock first.\n");
                         break;
                     }
-                    System.out.println("\n========== STOCK INSERTION ==========");
 
+                    System.out.println("\n========== STOCK INSERTION ==========");
+                    System.out.println("[+] Stocks available to insert:");
+
+                    // Display stock with available slots and mark full rows
+                    boolean allFull = true;
                     for (int i = 0; i < stock.length; i++) {
-                        System.out.print("Stock [" + (i + 1) + "] => ");
-                        boolean isRowEmpty = true;
+                        boolean isFull = true;
+                        System.out.print("Catalogue [" + (i + 1) + "] : ");
 
                         for (int j = 0; j < stock[i].length; j++) {
-                            if (!stock[i][j].equals("Empty")) {
-                                isRowEmpty = false;
+                            if (stock[i][j].equals("Empty")) {
+                                System.out.print("[ " + (j + 1) + " ] - ");
+                                isFull = false;
+                            } else {
+                                System.out.print("[ Not Available ] - ");
                             }
                         }
 
-                        if (isRowEmpty) {
-                            // If row is entirely empty, allow user to input for all columns
-                            System.out.println("This row is completely empty. You can insert values for all columns.");
-                            for (int j = 0; j < stock[i].length; j++) {
-                                System.out.print("[+] Enter item for Column [" + (j + 1) + "]: ");
-                                stock[i][j] = sc.next(); // Insert value for each column
-                            }
+                        if (isFull) {
+                            System.out.print("<<< STOCK FULL >>>");
                         } else {
-                            // If row has empty slots, prompt for specific empty slots
-                            boolean hasEmpty = false; // flag to track if there's an empty slot
-                            for (int j = 0; j < stock[i].length; j++) {
-                                if (stock[i][j].equals("Empty")) {
-                                    System.out.print("[+] Enter item for Column [" + (j + 1) + "]: ");
-                                    stock[i][j] = sc.next();
-                                    hasEmpty = true;
-                                }
-                            }
-                            if (!hasEmpty) {
-                                System.out.println("This stock is full.");
+                            allFull = false;
+                        }
+
+                        System.out.println();
+                    }
+
+                    if (allFull) {
+                        System.out.println("[!] All catalogues are full. Cannot insert new items.\n");
+                        break;
+                    }
+
+                    int numberCatalogue;
+                    int numberColumn;
+
+                    // Ask for catalogue number that is NOT full
+                    while (true) {
+                        System.out.print("[+] Insert the number of catalogues : ");
+                        numberCatalogue = sc.nextInt() - 1;
+
+                        if (numberCatalogue < 0 || numberCatalogue >= stock.length) {
+                            System.out.println("[!] Invalid catalogue number [!]");
+                            continue;
+                        }
+
+                        // Check if selected catalogue is full
+                        boolean rowFull = true;
+                        for (int j = 0; j < stock[numberCatalogue].length; j++) {
+                            if (stock[numberCatalogue][j].equals("Empty")) {
+                                rowFull = false;
+                                break;
                             }
                         }
+
+                        if (rowFull) {
+                            System.out.println("[!] This catalogue is FULL. Please choose another one.\n");
+                        } else {
+                            break; // Valid and not full
+                        }
                     }
-                    System.out.println("[+] Stock Updated [+]\n");
+
+                    // Ask for column and validate it's empty
+                    while (true) {
+                        System.out.print("[+] Insert number of column : ");
+                        numberColumn = sc.nextInt() - 1;
+
+                        if (numberColumn >= 0 && numberColumn < stock[numberCatalogue].length) {
+                            if (!stock[numberCatalogue][numberColumn].equals("Empty")) {
+                                System.out.println("[!] This slot is already taken by: \"" + stock[numberCatalogue][numberColumn] + "\"");
+                                System.out.println("[!] Please choose another column.\n");
+                                continue;
+                            }
+                            break;
+                        }
+
+                        System.out.println("[!] Invalid column number [!]");
+                    }
+
+                    // Input item name
+                    System.out.print("[+] Insert name of item : ");
+                    sc.nextLine(); // consume newline
+                    String nameItem = sc.nextLine();
+                    stock[numberCatalogue][numberColumn] = nameItem;
+
+                    System.out.println("[+] Successfully Inserted the Item [+]");
+
+                    // Optional: Show if catalogue is now full
+                    boolean isNowFull = true;
+                    for (int j = 0; j < stock[numberCatalogue].length; j++) {
+                        if (stock[numberCatalogue][j].equals("Empty")) {
+                            isNowFull = false;
+                            break;
+                        }
+                    }
+
+                    if (isNowFull) {
+                        System.out.println("\n[+] Catalogue " + (numberCatalogue + 1) + " is now FULL:");
+                        for (int j = 0; j < stock[numberCatalogue].length; j++) {
+                            System.out.println(" - Column " + (j + 1) + ": " + stock[numberCatalogue][j]);
+                        }
+                        System.out.println(">>> STOCK FULL <<<\n");
+                    }
+
                     break;
+                }
+
+                // [+] Update Product
+                case 4: {
+                    if (stock == null) {
+                        System.out.println("[!] Please set up stock first.\n");
+                        break;
+                    }
+                    System.out.println("\n========== STOCK UPDATE ==========");
+                    System.out.println("[+] Stocks available to update => ");
+                    for (int i =0; i < stock.length; i++) {
+                        System.out.print("Catalogue [" + (i + 1) + "] : ");
+                        for (int j = 0; j < stock[i].length; j++) {
+                            System.out.print("[ " + (j + 1) + " - " + stock[i][j] + " ] ");
+                        }
+                    }
+                    int row, column;
+                    while (true) {
+                        System.out.println("[+] Insert the number of catalogues to update : ");
+                        row = sc.nextInt() - 1;
+                        if (row < 0 || row >= stock.length) {
+                            System.out.println("[!] Invalid row number [!]");
+                            break;
+                        }
+                    }
+                    while (true){
+                        System.out.println("[+] Insert number of columns to update : ");
+                        column = sc.nextInt() - 1;
+                        if (column < 0 || column >= stock[row].length) {
+                            System.out.println("[!] Invalid column number [!]");
+                            break;
+                        }
+                    }
+
                 }
 
                 case 7: {
@@ -109,27 +219,6 @@ public class Main {
                     System.out.println("[!] Invalid option, please try again.\n");
                     break;
                 }
-            }
-
-            // After each operation, check if the stock is full and display the updated stock
-            if (stock != null) {
-                System.out.println("\n========== UPDATED STOCK ==========");
-                for (int i = 0; i < stock.length; i++) {
-                    System.out.print("Stock [" + (i + 1) + "] => ");
-                    boolean isFull = true;
-                    for (int j = 0; j < stock[i].length; j++) {
-                        System.out.print("[ " + (j + 1) + " - " + stock[i][j] + " ] ");
-                        if (stock[i][j].equals("Empty")) {
-                            isFull = false;
-                        }
-                    }
-                    if (isFull) {
-                        System.out.println("This stock is full.");
-                    } else {
-                        System.out.println(); // move to next line for empty slots
-                    }
-                }
-                System.out.println("================================\n");
             }
         }
     }
